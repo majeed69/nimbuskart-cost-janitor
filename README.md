@@ -345,7 +345,3 @@ Possible future enhancements:
 * Docker Compose setup
 * Automated scheduling
 * CloudWatch metrics integration
-
----
-
- and portfolio purposes.
