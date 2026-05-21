@@ -1,0 +1,18 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Reports
+report.json
+report.md
+
+# OS
+.DS_Store
+Thumbs.db

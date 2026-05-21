@@ -1,0 +1,70 @@
+name: NimbusKart Cost Janitor
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+workflow_dispatch:
+
+jobs:
+  terraform-and-janitor:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Setup LocalStack
+        uses: LocalStack/setup-localstack@v0.2.2
+        with:
+          image-tag: "3.0"
+
+      - name: Install Python Dependencies
+        run: |
+          cd janitor
+          pip install -r requirements.txt
+
+      - name: Terraform Init
+        run: |
+          cd terraform
+          terraform init
+
+      - name: Terraform Validate
+        run: |
+          cd terraform
+          terraform validate
+
+      - name: Terraform Apply
+        run: |
+          cd terraform
+          terraform apply -auto-approve
+
+      - name: Run Janitor Dry Run
+        env:
+          AWS_ACCESS_KEY_ID: test
+          AWS_SECRET_ACCESS_KEY: test
+          AWS_DEFAULT_REGION: us-east-1
+        run: |
+          cd janitor
+          python janitor.py --dry-run
+
+      - name: Upload Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: janitor-reports
+          path: |
+            janitor/report.json
+            janitor/report.md
